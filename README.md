@@ -67,3 +67,9 @@ export default tseslint.config([
   },
 ])
 ```
+
+## Variables de entorno en CI (no commitear .env)
+
+- `VITE_GA_MEASUREMENT_ID`: identificador de la propiedad GA4 (ej. `G-M7XZTW42GB`).
+- `VITE_SENTRY_DSN`: DSN provisto por Sentry para el proyecto.
+- `FIREBASE_TOKEN`: token generado con `firebase login:ci` para habilitar el deploy en CircleCI.

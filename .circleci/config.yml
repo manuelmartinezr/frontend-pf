@@ -2,7 +2,6 @@ version: 2.1
 
 orbs:
   node: circleci/node@5.2
-  aws-cli: circleci/aws-cli@4.1.1
 
 jobs:
   test:
@@ -15,26 +14,32 @@ jobs:
           name: Run tests
           command: npm test
 
-  deploy:
-    executor: node/default
+  deploy_firebase:
+    docker:
+      - image: cimg/node:20.10
     steps:
       - checkout
-      - node/install-packages:
-          pkg-manager: npm
-      - aws-cli/install
       - run:
-          name: Build project
+          name: Instalar dependencias
+          command: npm ci
+      - run:
+          name: Construir proyecto
           command: npm run build
       - run:
-          name: Deploy to S3
-          command: |
-            aws s3 sync ./dist s3://todo-2025-fep-uninorte/ --delete --acl public-read
+          name: Instalar Firebase CLI
+          command: npm i -g firebase-tools
+      - run:
+          name: Verificar GA reemplazado
+          command: grep -q "G-" dist/index.html || (echo "GA ID no inyectado" && exit 1)
+      - run:
+          name: Deploy a Firebase Hosting
+          command: firebase deploy --only hosting --token "$FIREBASE_TOKEN"
 
 workflows:
   test_and_deploy:
     jobs:
       - test
-      - deploy:
+      - deploy_firebase:
           requires:
             - test
           filters:
